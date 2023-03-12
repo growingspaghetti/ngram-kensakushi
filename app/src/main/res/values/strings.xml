@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ngram検索氏</string>
+    <string name="search">検索</string>
 </resources>
