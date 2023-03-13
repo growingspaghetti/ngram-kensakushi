@@ -13,7 +13,6 @@ class BlankFragment2 : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val v = inflater.inflate(R.layout.fragment_blank2, container, false)
         val searchButton = v.findViewById<View>(R.id.button2)
         searchButton.setOnClickListener{

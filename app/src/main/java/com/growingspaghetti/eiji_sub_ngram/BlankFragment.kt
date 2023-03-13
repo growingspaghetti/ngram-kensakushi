@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.growingspaghetti.eiji_sub_ngram.R
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -17,7 +16,6 @@ private const val ARG_DICTIONARY = "ARG_DICTIONARY"
 
 
 class BlankFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var keyword: String? = null
     private var dictionary: String? = null
 
@@ -81,18 +79,18 @@ class BlankFragment : Fragment() {
             Path(idx.parent!!, idx.name.replace("_INDEX", "_NGRAM")).absolutePathString(),
             idx.absolutePath
         )
-        val toSearch = if (segInfo.size > 500) {
+        val toFeed = if (segInfo.size > 500) {
             segInfo.subList(0, 500)
         } else {
             segInfo
         }
         val hits = loadThenFilter(
             keyword,
-            toSearch,
+            toFeed,
             Path(idx.parent!!, idx.name.replace("_INDEX", "_TEXT")).absolutePathString()
         )
         return Pair(
-            hits, if (segInfo != toSearch) {
+            hits, if (segInfo != toFeed) {
                 Optional.of(segInfo.size)
             } else {
                 Optional.empty()

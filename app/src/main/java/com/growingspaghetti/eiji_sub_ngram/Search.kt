@@ -20,7 +20,7 @@ private fun load(nums: List<Pair<Int, Int>>, textFile: String): List<String> {
     val txtf = RandomAccessFile(textFile, "r")
     txtf.use {
         // must not be parallel
-        return nums.stream().sorted { o1, o2 -> o1.first - o1.second }.distinct().map { pair ->
+        return nums.stream().sorted { o1, o2 -> o1.first - o2.first }.distinct().map { pair ->
             txtf.seek(pair.first.toLong())
             val line = ByteArray(pair.second)
             txtf.read(line)
@@ -36,19 +36,24 @@ fun ngramSearch(keyword: String, ngram: String, index: String): List<Pair<Int, I
     val searchBlock = ByteArray(BLOCK_SIZE)
     for (c in keyword.toByteArray().iterator().withIndex()) {
         if (c.index > searchBlock.size - 1) {
-            break;
+            break
         }
         searchBlock[c.index] = c.value
     }
+    val (begin, end) = determineNgramRange(searchBlock, ngram)
+    return determineOccurrenceLinePositions(begin, end, index)
+}
 
-    var begin = 0L
-    var end = 0L
+private fun determineNgramRange(searchBlock: ByteArray, ngram: String): Pair<Long, Long> {
     val ngramf = RandomAccessFile(ngram, "r")
     ngramf.use {
-        begin = leftLimit(ngramf, searchBlock) / BLOCK_SIZE * 8;
-        end = rightLimit(ngramf, searchBlock) / BLOCK_SIZE * 8;
+        val begin = leftLimit(ngramf, searchBlock) / BLOCK_SIZE * 8
+        val end = rightLimit(ngramf, searchBlock) / BLOCK_SIZE * 8
+        return Pair(begin, end)
     }
+}
 
+private fun determineOccurrenceLinePositions(begin: Long, end: Long, index: String): List<Pair<Int, Int>> {
     val nums: MutableList<Pair<Int, Int>> = mutableListOf()
     val indexf = RandomAccessFile(index, "r")
     indexf.use {
@@ -62,7 +67,7 @@ fun ngramSearch(keyword: String, ngram: String, index: String): List<Pair<Int, I
             nums.add(Pair(toInt(offset), toInt(len)))
         }
     }
-    return nums.toList()
+    return nums
 }
 
 private fun toInt(b: ByteArray): Int {
@@ -83,7 +88,7 @@ private fun leftLimit(index: RandomAccessFile, head: ByteArray): Long {
         index.read(next)
         for (i in head.indices.reversed()) {
             if (head[i] != 0x00.toByte()) {
-                break;
+                break
             }
             word[i] = 0
             next[i] = 0
@@ -125,7 +130,7 @@ private fun rightLimit(index: RandomAccessFile, head: ByteArray): Long {
         index.read(next)
         for (i in head.indices.reversed()) {
             if (head[i] != 0x00.toByte()) {
-                break;
+                break
             }
             word[i] = 0
             next[i] = 0
